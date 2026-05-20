@@ -2,30 +2,12 @@
 
 自动为学术论文生成结构化阅读笔记，支持直接写入 Zotero 并渲染 LaTeX 公式。
 
-本 Skill 专为 [Hermes Agent](https://github.com/anthropics/claude-code) 设计，通过 [Zotero MCP](https://github.com/54yyyu/zotero-mcp) 与本地 Zotero 客户端交互，实现论文全文读取、笔记生成与写入的完整工作流。配合 [Better Notes](https://github.com/windingwind/zotero-better-notes) 插件使用，可在 Zotero 客户端内直接渲染 LaTeX 公式和结构化笔记。
-
-## 技术栈
-
-| 组件 | 说明 |
-|------|------|
-| **Hermes Agent** | AI Agent 运行环境，加载并执行本 Skill |
-| **[Zotero MCP](https://github.com/54yyyu/zotero-mcp)** | MCP Server，提供 Zotero 的搜索、全文读取、笔记写入等工具 |
-| **[Better Notes](https://github.com/windingwind/zotero-better-notes)** | Zotero 插件，在客户端渲染 LaTeX 公式和富文本笔记 |
-| **Zotero 9.0.3+** | 本地文献管理客户端 |
-
 ## 功能
 
-- 通过 Zotero MCP 获取论文全文，按定制模板生成中文笔记
-- 支持 LaTeX 公式（行内 `$...$` 和块级），由 Better Notes 插件渲染
-- 以 HTML 格式直接写入 Zotero 笔记字段
+- 从 Zotero 获取论文全文，按定制模板生成中文笔记
+- 支持 LaTeX 公式（行内 `$...$` 和块级）
+- 直接写入 Zotero 笔记，到达客户端时已是渲染好的格式
 - 适用于多模态、NLP、CV 等领域的论文
-
-## 前置条件
-
-1. **Zotero 客户端** — 安装 [Zotero 9.0.3+](https://www.zotero.org/download/)
-2. **Better Notes 插件** — 在 Zotero 中安装 [zotero-better-notes](https://github.com/windingwind/zotero-better-notes)，用于笔记内 LaTeX 渲染
-3. **Zotero MCP Server** — 按 [zotero-mcp](https://github.com/54yyyu/zotero-mcp) 说明配置 MCP Server，确保 Agent 可访问 Zotero API
-4. **Hermes Agent** — 确保 Agent 环境已配置 Zotero MCP 工具
 
 ## 安装
 
@@ -87,6 +69,13 @@ paper-notes/
     ├── zotero-html-format.md             # Zotero HTML 写入格式说明
     └── zotero7-plugin-dev.md             # Zotero 7+ 插件开发参考
 ```
+
+## 依赖
+
+- Hermes Agent
+- Zotero MCP 工具（用于读写 Zotero 笔记）
+- Zotero 9.0.3+（Windows/macOS/Linux）
+- Better Notes 插件（可选，用于 LaTeX 渲染）
 
 ## 许可证
 

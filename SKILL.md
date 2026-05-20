@@ -14,7 +14,7 @@ metadata:
 
 > 子技能，隶属于 `academic-paper-management`。本技能聚焦笔记生成流程，论文搜索、组织、BibTeX 等完整工作流见父技能。
 > 模板同步位置：`academic-paper-management/templates/paper-reading-note.md`
-> Zotero 笔记写入格式详见 `references/zotero-md-autoconvert-format.md`。
+> Zotero 笔记写入格式详见 `references/zotero-html-format.md`。
 
 ## Overview
 
@@ -87,6 +87,7 @@ Input_B → Conv1D(统一维度) → PosEnc(注入时序) ─┘
 - 与 VLM / 多模态融合 / 跨模态对齐的关系
 - 可借鉴的点
 - 可改进的方向
+- 社区讨论中的有价值观点（来自 Grok Search）
 
 ## 延伸阅读
 从本论文的参考文献中，挑 2-3 篇最值得读的，每篇附上：
@@ -96,7 +97,8 @@ Input_B → Conv1D(统一维度) → PosEnc(注入时序) ─┘
 
 ## 工作流程
 
-### Step 1：获取论文全文
+### Step 1：获取论文全文 + 网络资料
+**1a. 从 Zotero 获取论文全文：**
 ```
 mcp_zotero_zotero_get_item_fulltext(item_key=...)
 ```
@@ -105,11 +107,24 @@ mcp_zotero_zotero_get_item_fulltext(item_key=...)
 mcp_zotero_zotero_get_item_metadata(item_key=..., include_abstract=True)
 ```
 
+**1b. 用 Grok Search 搜索网络资料：**
+搜索论文标题、方法名、GitHub issue、博客讲解等，补充论文本身没有的视角：
+```
+mcp_grok_search_web_search(query="论文标题 方法讲解 OR tutorial OR explained")
+mcp_grok_search_web_search(query="论文标题 GitHub issues OR discussion")
+```
+重点关注：
+- 博客/知乎/Reddit 上的通俗讲解
+- 后续工作的改进或批评
+- 代码实现中的注意事项
+- 社区讨论中的常见问题
+
 ### Step 2：按模板生成笔记
 - 用中文输出
 - 技术术语首次出现时括号注释英文
 - 实验结果保留关键数字
 - 评价要客观，指出优缺点
+- 结合网络资料补充：论文没讲清楚的地方、社区的常见疑问、后续工作的评价
 
 ### Step 3：写入 Zotero（需写入权限）
 
@@ -123,7 +138,8 @@ Zotero 笔记 API 直接写入 HTML，笔记到达客户端时已是渲染好的
 - 块级公式：单独一个 `<p><span class="math">$...$</span></p>`
 - 所有公式都用单 `$`，不用 `$$`
 - LaTeX 内容原样写入，不转义
-- 标题用 `<h1>`，二级标题用 `<h2>`
+- 标题由 `note_title` 参数处理，内容里<strong>不要写 `<h1>`</strong>，直接从 `<h2>` 开始
+- 二级标题用 `<h2>`
 - 粗体用 `<strong>`
 - 列表用 `<ul>/<li>` 或 `<ol>/<li>`
 - 链接用 `<a href="url">text</a>`
@@ -133,7 +149,6 @@ Zotero 笔记 API 直接写入 HTML，笔记到达客户端时已是渲染好的
 示例格式：
 ```html
 <div data-schema-version="9">
-<h1>论文笔记标题</h1>
 <h2>章节</h2>
 <p>正文，<strong>加粗</strong>，<span class="math">$E=mc^2$</span></p>
 <p><span class="math">$Y = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$</span></p>
@@ -166,7 +181,7 @@ mcp_zotero_zotero_add_by_url(url=..., tags=[...])
 3. **论文类型不同** — Survey 类论文不需要"实验"部分，改为"分类体系 + 关键洞察"。
 4. **笔记语言** — 默认中文，除非用户要求英文。
 5. **术语翻译** — 保留英文原文（如 Crossmodal Attention），不要强行翻译。
-6. **Zotero 笔记标题** — Zotero 用笔记第一行作为显示标题。`zotero_create_note` 的 `note_title` 参数虽不生效，但 API 要求必填（缺失会报 validation error），所以必须传一个值（如论文标题），同时笔记内容第一行写 `<h1>标题</h1>`，这样 Zotero 里才能看到有意义的标题。
+6. **Zotero 笔记标题** — Zotero 用笔记第一行作为显示标题。`note_title` 参数会创建标题，内容里不要再写 `<h1>`，否则会重复。直接从 `<h2>` 开始写内容。
 9. **Zotero 9 插件兼容性** — manifest 格式才是关键，不是签名。正确格式见 `references/zotero7-plugin-dev.md`。
 
 ## Verification Checklist
